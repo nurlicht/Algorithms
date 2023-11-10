@@ -131,15 +131,60 @@ class XmlNode {
 
 // Main class to be called by clients (see the demo below)
 class XmlParser {
-  static parse(xmlString) {
+  static parse(xmlString, extractAllTagsFirst) {
     if (typeof xmlString !== 'string') {
       throw new Error('Invalid XML-string was encountered.');
     }
-    const tags = XmlParser.getTags(xmlString);
     const xmlNodeRoot = XmlNode.create(null, null);
-    XmlParser.addValuesAndChildren(xmlString, tags, xmlNodeRoot);
+    if (extractAllTagsFirst) {
+      // Method 1: more readable, more separation of concerns, but with more space complexity
+      const tags = XmlParser.getTags(xmlString);
+      XmlParser.addNodes(xmlString, tags, xmlNodeRoot);
+    } else {
+      // Method 2: less readable, less separation of concerns, but with less space complexity
+      XmlParser.extractTagsAndAddNodes(xmlString, xmlNodeRoot);
+    }
     const root = xmlNodeRoot.children[0];
     return root;
+  }
+
+  static extractTagsAndAddNodes(xmlString, parent) {
+    const xmlStringLength = xmlString.length;
+    let index = 0;
+    let lastNode = parent;
+    let previousTag = null;
+    while (index < xmlStringLength) {
+      const tag = XmlTag.getNext(xmlString, index);
+      if (!Utilities.hasValue(tag)) {
+        return;
+      } else {
+        if (!tag.isEndTag()) { // <TAG>
+          const parent = (
+            Utilities.hasValue(previousTag) &&
+            previousTag.isEndTag() &&
+            Utilities.hasValue(lastNode)
+            ) ? lastNode.parent : lastNode;
+          lastNode = XmlNode.create(parent, tag.getName(), tag.getAtributes());
+        } else { // </TAG>
+          if (!Utilities.hasValue(previousTag)) {
+            throw new Error('Unexpected </TAG> was encountered.');
+          }
+          const isLeaf = (
+            !previousTag.isEndTag() &&
+            previousTag.getName() === tag.getName()
+          );
+          if (isLeaf) {
+            const value = xmlString.substring(
+              previousTag.secondIndex + 1,
+              tag.firstIndex
+            );
+            lastNode.setValue(value);
+          } 
+        }
+        previousTag = tag;
+        index = tag.secondIndex + 1;
+      }
+    }
   }
 
   static getTags(xmlString) {
@@ -158,7 +203,7 @@ class XmlParser {
     return tags;
   }
 
-  static addValuesAndChildren(xmlString, tags, parent) {
+  static addNodes(xmlString, tags, parent) {
     let lastNode = parent;
     let previousTag = null;
     for (const tag of tags) {
@@ -237,13 +282,20 @@ class Demo {
     console.log('Input (xmlString):', xmlString);
     console.assert(typeof xmlString === 'string', 'Input is not a string-type (rendered version of) xml.');
     
-    const xmlObject = XmlParser.parse(xmlString);
+    const xmlObject1 = XmlParser.parse(xmlString, true);
+    const xmlObject2 = XmlParser.parse(xmlString, false);
+    Demo.logAndAssert(xmlObject1);
+    Demo.logAndAssert(xmlObject2);
+    console.assert(JSON.stringify(xmlObject1) === JSON.stringify(xmlObject2), "The two parsing methods have different outputs.");
+    return xmlObject1;
+  }
+
+  static logAndAssert(xmlObject) {
     XmlNodeUtil.removeParentsAndNulls(xmlObject); 
     console.log('(stringified) Output (xmlObject):', Demo.stringify(xmlObject));
     console.assert(xmlObject.children[0].value === '4', "The '4' leaf was not parsed correctly.");
+    console.assert(xmlObject.children[0].attributes.key1 === 'value1', "The 'value1' attribute was not parsed correctly.");
     console.assert(xmlObject.children[1].children[0].value === 'Hello World!', "The 'Hello World!' leaf was not parsed correctly.");
-
-    return xmlObject;
   }
 
   static stringify(x) {
