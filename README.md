@@ -69,4 +69,5 @@ XmlParser.parse(xmlString)
         - Keep track of the previous tag/node
         - Associate a new node with its parent
         - Assign values to leaves upon detection of an end tag (</>)
-        
+
+Extraction of tags and creation of nodes may be done in parallel or serially (the flag ```extractAllTagsFirst```).
