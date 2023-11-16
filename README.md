@@ -10,11 +10,11 @@
   - XML-parsing
 
 ### Execution
-```
-node ./xml-parser.js
-```
+- Javascript: ```node ./xml-parser.js```
+- Python: ```python ./xml_parser_test.py```
 
-### Console Output (demo)
+### Console Output
+- Javascript demo
 ```
 Input (xmlString):
     <Item_0>
@@ -51,6 +51,12 @@ Input (xmlString):
   ]
 }
 ```
+- Python
+```
+Ran 3 tests in 0.001s
+
+OK
+```
 
 ### Application with other clients
 Simply call the following static method (as in the demo-class):
@@ -71,3 +77,4 @@ XmlParser.parse(xmlString)
         - Assign values to leaves upon detection of an end tag (</>)
 
 Extraction of tags and creation of nodes may be done in parallel or serially (the flag ```extractAllTagsFirst```).
+       
