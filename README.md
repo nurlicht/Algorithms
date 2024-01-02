@@ -53,7 +53,7 @@ Input (xmlString):
 ```
 - Python
 ```
-Ran 3 tests in 0.001s
+Ran 9 tests in 0.XXXs
 
 OK
 ```
