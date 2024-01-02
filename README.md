@@ -10,8 +10,8 @@
   - XML-parsing
 
 ### Execution
-- Javascript: ```node ./xml-parser.js```
-- Python: ```python ./xml_parser_test.py```
+- Javascript: ```node ./src/javascript/xml-parser.js```
+- Python: ```python ./src/python/xml_parser_test.py```
 
 ### Console Output
 - Javascript demo
