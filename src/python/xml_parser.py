@@ -122,13 +122,13 @@ class XmlParser:
         else: # </TAG>
           if (previous_tag == None):
             raise Exception('Unexpected </TAG> was encountered.')
-          isLeaf = (
-            not previous_tag.is_end_tag() and
-            previous_tag.get_name() == tag.get_name()
-          )
-          if (isLeaf):
-            value = xml_string[previous_tag.second_index + 1 : tag.first_index]
-            last_node.set_value(value)
+          if (not previous_tag.is_end_tag()):
+            if (previous_tag.get_name() == tag.get_name()): # <TAG>value</TAG>
+              value = xml_string[previous_tag.second_index + 1 : tag.first_index]
+              last_node.set_value(value)
+            else: # # <TAG1>value</TAG2>
+              raise Exception('Unpaired tag names were encountered: ' +
+                tag.get_name() + ' vs. ' + previous_tag.get_name())
         previous_tag = tag
         index = tag.second_index + 1
 

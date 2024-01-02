@@ -178,6 +178,22 @@ class XmlTest(unittest.TestCase):
           args[1]
         )
 
+  def test_parse_invalid_3(self):
+    # Initialize
+    param_list = [
+      ('<b>1</a>', False)
+    ]
+
+    # Run/Assert
+    for args in param_list:
+      with self.subTest(args):
+        self.assertRaisesRegex(
+          Exception,
+          'Unpaired tag names were encountered: a vs. b',
+          XmlParser.parse,
+          args[0],
+          args[1]
+        )
 
 if __name__ == '__main__':
   unittest.main()
