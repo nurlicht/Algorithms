@@ -127,10 +127,28 @@ class XmlNode {
     }
     this.value = hasValue ? value.toString().replaceAll('\\n', '').trim() : null;
   }
+
+  static removeParentsAndNulls(node) {
+    if (!Utilities.hasValue(node)) {
+      return;
+    }
+    node.parent = undefined;
+    for (const child of node.children) {
+      XmlNode.removeParentsAndNulls(child);
+    }
+    if (node.children.length === 0) {
+      node.children = undefined;
+    }
+    if (!Utilities.hasValue(node.value)) {
+      node.value = undefined;
+    }
+    if (!Utilities.hasValue(node.attributes) || Object.keys(node.attributes).length === 0) {
+      node.attributes = undefined;
+    }
+  }
 }
 
-// Main class to be called by clients (see the demo below)
-class XmlParser {
+export class XmlParser {
   static parse(xmlString, extractAllTagsFirst) {
     if (typeof xmlString !== 'string') {
       throw new Error('Invalid XML-string was encountered.');
@@ -169,17 +187,18 @@ class XmlParser {
           if (!Utilities.hasValue(previousTag)) {
             throw new Error('Unexpected </TAG> was encountered.');
           }
-          const isLeaf = (
-            !previousTag.isEndTag() &&
-            previousTag.getName() === tag.getName()
-          );
-          if (isLeaf) {
-            const value = xmlString.substring(
-              previousTag.secondIndex + 1,
-              tag.firstIndex
-            );
-            lastNode.setValue(value);
-          } 
+          if (!previousTag.isEndTag()) {
+            if (previousTag.getName() === tag.getName()) {
+              const value = xmlString.substring(
+                previousTag.secondIndex + 1,
+                tag.firstIndex
+              );
+              lastNode.setValue(value);
+            } else {
+              throw new Error('Unpaired tag names were encountered: ' +
+              tag.getName() + ' vs. ' + previousTag.getName())
+            }
+          }
         }
         previousTag = tag;
         index = tag.secondIndex + 1;
@@ -218,89 +237,24 @@ class XmlParser {
         if (!Utilities.hasValue(previousTag)) {
           throw new Error('Unexpected </TAG> was encountered.');
         }
-        const isLeaf = (
-          !previousTag.isEndTag() &&
-          previousTag.getName() === tag.getName()
-        );
-        if (isLeaf) {
-          const value = xmlString.substring(
-            previousTag.secondIndex + 1,
-            tag.firstIndex
-          );
-          lastNode.setValue(value);
-        } 
+        if (!previousTag.isEndTag()) {
+          if (previousTag.getName() === tag.getName()) {
+            const value = xmlString.substring(
+              previousTag.secondIndex + 1,
+              tag.firstIndex
+            );
+            lastNode.setValue(value);
+          } else {
+            throw new Error('Unpaired tag names were encountered: ' +
+            tag.getName() + ' vs. ' + previousTag.getName())
+          }
+        }
       }
       previousTag = tag;
     }
   }
-}
 
-
-// ***************************  For demo only ***************************
-class XmlSynthesizer {
-  static create() {
-    return `
-    <Item_0>
-      <Item_0_0 key1="value1" key2="value2">
-        4
-      </Item_0_0>
-      <Item_0_1>
-        <Item_0_1_0>
-          Hello World!
-        </Item_0_1_0>
-      </Item_0_1>
-    </Item_0>
-    `;
-  }
-}
-
-
-class XmlNodeUtil {
   static removeParentsAndNulls(node) {
-    if (!Utilities.hasValue(node)) {
-      return;
-    }
-    node.parent = undefined;
-    for (const child of node.children) {
-      XmlNodeUtil.removeParentsAndNulls(child);
-    }
-    if (node.children.length === 0) {
-      node.children = undefined;
-    }
-    if (!Utilities.hasValue(node.value)) {
-      node.value = undefined;
-    }
-    if (!Utilities.hasValue(node.attributes) || Object.keys(node.attributes).length === 0) {
-      node.attributes = undefined;
-    }
-  }
-} 
-
-class Demo {
-  static parseSimulatedXmlString() {
-    const xmlString = XmlSynthesizer.create();
-    console.log('Input (xmlString):', xmlString);
-    console.assert(typeof xmlString === 'string', 'Input is not a string-type (rendered version of) xml.');
-    
-    const xmlObject1 = XmlParser.parse(xmlString, true);
-    const xmlObject2 = XmlParser.parse(xmlString, false);
-    Demo.logAndAssert(xmlObject1);
-    Demo.logAndAssert(xmlObject2);
-    console.assert(JSON.stringify(xmlObject1) === JSON.stringify(xmlObject2), "The two parsing methods have different outputs.");
-    return xmlObject1;
-  }
-
-  static logAndAssert(xmlObject) {
-    XmlNodeUtil.removeParentsAndNulls(xmlObject); 
-    console.log('(stringified) Output (xmlObject):', Demo.stringify(xmlObject));
-    console.assert(xmlObject.children[0].value === '4', "The '4' leaf was not parsed correctly.");
-    console.assert(xmlObject.children[0].attributes.key1 === 'value1', "The 'value1' attribute was not parsed correctly.");
-    console.assert(xmlObject.children[1].children[0].value === 'Hello World!', "The 'Hello World!' leaf was not parsed correctly.");
-  }
-
-  static stringify(x) {
-    return JSON.stringify(x, null, '  ');
+    return XmlNode.removeParentsAndNulls(node);
   }
 }
-
-Demo.parseSimulatedXmlString();

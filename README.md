@@ -10,53 +10,8 @@
   - XML-parsing
 
 ### Execution
-- Javascript: ```node ./src/javascript/xml-parser.js```
+- Javascript: ```deno test ./src/javascript/xml_parser_test.js```
 - Python: ```python ./src/python/xml_parser_test.py```
-
-### Console Output
-- Javascript demo
-```
-Input (xmlString):
-    <Item_0>
-      <Item_0_0 key1="value1" key2="value2">
-        4
-      </Item_0_0>
-      <Item_0_1>
-        <Item_0_1_0>
-          Hello World!
-        </Item_0_1_0>
-      </Item_0_1>
-    </Item_0>
-
-(stringified) Output (xmlObject): {
-  "name": "Item_0",
-  "children": [
-    {
-      "name": "Item_0_0",
-      "attributes": {
-        "key1": "value1",
-        "key2": "value2"
-      },
-      "value": "4"
-    },
-    {
-      "name": "Item_0_1",
-      "children": [
-        {
-          "name": "Item_0_1_0",
-          "value": "Hello World!"
-        }
-      ]
-    }
-  ]
-}
-```
-- Python
-```
-Ran 9 tests in 0.XXXs
-
-OK
-```
 
 ### Application with other clients
 Simply call the following static method (as in the demo-class):
@@ -77,4 +32,3 @@ XmlParser.parse(xmlString)
         - Assign values to leaves upon detection of an end tag (</>)
 
 Extraction of tags and creation of nodes may be done in parallel or serially (the flag ```extractAllTagsFirst```).
-       
