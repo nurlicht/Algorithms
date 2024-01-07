@@ -10,7 +10,7 @@
   - XML-parsing
 
 ### Execution
-- Javascript: ```deno test ./src/javascript/xml_parser_test.js```
+- Javascript: ```deno test -A```
 - Python: ```python ./src/python/xml_parser_test.py```
 
 ### Application with other clients
