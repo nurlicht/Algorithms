@@ -4,7 +4,7 @@ import { assert, assertThrows } from "https://deno.land/std@0.211.0/assert/mod.t
 
 
 Deno.test('Health-Check', async () => {
-    assert((await new Promise((res, rej) => res(4))) === 4);
+    assert((await new Promise((res, _rej) => res(4))) === 4);
 }, 1000);
 
 
