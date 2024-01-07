@@ -1,4 +1,4 @@
-# Graph Traversal [![](https://github.com/nurlicht/Algorithms/actions/workflows/python-package.yml/badge.svg)](https://github.com/nurlicht/Algorithms/actions)
+# Graph Traversal [![](https://github.com/nurlicht/Algorithms/actions/workflows/python-package.yml/badge.svg)](https://github.com/nurlicht/Algorithms/actions)[![](https://github.com/nurlicht/Algorithms/actions/workflows/deno.yml/badge.svg)](https://github.com/nurlicht/Algorithms/actions)
 
 ### Algorithm Features
 - Single-pass
